@@ -1,8 +1,11 @@
-from gtts import gTTS
 import os
-import pygame
+import pip
 import time
+
+from gtts import gTTS
+import pygame
 from bs4 import BeautifulSoup
+
 import requests
 import time
 import math
@@ -111,5 +114,5 @@ def dAllVoice(workdoc):
 		else:
 			j = 0
 
-if __name__ == "__main__":
-	dAllVoice(consts.workdoc())
+#if __name__ == "__main__":
+#	dAllVoice(consts.workdoc())
