@@ -118,6 +118,7 @@ class MainFrame(tk.Tk):
 	def __init__(self, *args, **kwargs):
 		tk.Tk.__init__(self, *args, **kwargs)
 		self.size = "800x500"
+		self.title('PySrs')
 		self.geometry(self.size)
 
 		load = self.Splash(self)
