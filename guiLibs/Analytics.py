@@ -36,7 +36,6 @@ class Analytics(tk.Frame):
 		self.init_vals()
 		for i in self.controller.dandl:
 			self.controller.update()
-			print('{}\\{}\\{}{}'.format(consts.cwd(),consts.fname(),i,consts.hwdoc()))
 			self.hfiles.append('{}\\{}\\{}{}'.format(consts.cwd(),consts.fname(),i,consts.hwdoc()))
 
 		for j in self.hfiles:
