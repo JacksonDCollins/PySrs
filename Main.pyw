@@ -1,5 +1,6 @@
 from helpLibs import Maingui
 from tkinter import messagebox
+print("test")
 
 def start(debug = False):
 	try:
