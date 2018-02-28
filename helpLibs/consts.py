@@ -1,25 +1,36 @@
 import configparser
 import os
-confile = 'config.ini'
+import ctypes.wintypes
+
+for i in range(1):
+	CSIDL_PERSONAL = 5      # My Documents
+	SHGFP_TYPE_CURRENT = 0   # Get current, not default value
+
+	buf= ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+	ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
+workloc = buf.value + '\PySrs'
+confile = workloc + '\config.ini'
 config = configparser.ConfigParser()
 config.read(confile)
 
+
 if not config.sections():
-	config['GENERAL'] = {'cwd': os.getcwd(),
+	config['GENERAL'] = {'cwd': workloc,#os.getcwd(),
 						 'month': 30,
-						 'workdoc': os.getcwd() + '\sentences.csv',
+						 'workdoc': workloc + '\sentences.csv', #os.getcwd() + '\sentences.csv',
 						 'hwdoc': '\history.csv',
 						 'fname': 'data',
-						 'backups': os.getcwd() + '\\backups\\',
+						 'backups': workloc + '\\backups\\',#os.getcwd() + '\\backups\\',
 						 'newPerLesson': 5,
 						 'reviewPerLesson': 25}
-elif not config['GENERAL']['cwd'] == os.getcwd():
-		config['GENERAL'] = {'cwd': os.getcwd(),
+elif not config['GENERAL']['cwd'] == workloc:#os.getcwd():
+		config['GENERAL'] = {'cwd': workloc,#os.getcwd(),
 						 'month': config['GENERAL']['month'],
-						 'workdoc': os.getcwd() + '\sentences.csv',
+						 'workdoc': workloc + '\sentences.csv', #os.getcwd() + '\sentences.csv',
 						 'hwdoc': config['GENERAL']['hwdoc'],
 						 'fname': config['GENERAL']['fname'],
-						 'backups': os.getcwd() + '\\backups\\',
+						 'backups': workloc + '\\backups\\',#os.getcwd() + '\\backups\\',
 						 'newPerLesson': config['GENERAL']['newPerLesson'],
 						 'reviewPerLesson': config['GENERAL']['reviewPerLesson']}
 
