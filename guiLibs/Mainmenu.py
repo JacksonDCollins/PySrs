@@ -2,13 +2,14 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import helpLibs.srs as srs
 import helpLibs.audio as audio
+
 class Mainmenu(tk.Frame):
 	def __init__(self, master, controller, *args):
 		tk.Frame.__init__(self, master)
 		self.grid()
 		self.controller = controller
 		self.size = "800x500"		
-		self.curlang = [self.controller.langs[x] for x in self.controller.langs][0]
+		self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
 		self.bind("<<ShowFrame>>", self.on_show_frame)
 		self.createWidgets()
 		
