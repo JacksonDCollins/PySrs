@@ -8,8 +8,12 @@ class Mainmenu(tk.Frame):
 		tk.Frame.__init__(self, master)
 		self.grid()
 		self.controller = controller
-		self.size = "800x500"		
-		self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
+		self.size = "800x500"
+		if not self.controller.langs == {}:
+			self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
+		else:
+			self.controller.langs = {'none': 'None'}
+			self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
 		self.bind("<<ShowFrame>>", self.on_show_frame)
 		self.createWidgets()
 		

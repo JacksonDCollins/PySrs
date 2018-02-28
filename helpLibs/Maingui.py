@@ -101,6 +101,13 @@ def makeBackup():
 						os.remove(consts.backups() + i + "\\" + file)
 				os.rmdir(consts.backups() + i)
 
+def createDefaults():
+	if not os.path.isfile(consts.workdoc()):
+		with open(consts.workdoc(), 'w', encoding = 'utf-8') as t:
+			t.write('0SENTENCE,1TRANSLATION,2TAGS,3LEARNED,4ATTEMPTS,5SUCCESFUL ATTEMPS,6DAY LAST ATTEMPT,7LAST ATTEMPT RESULT,8DAY TO REVIEW,9ATTEMPT STREAK,10ID,DECK11,LEVEL12,IGNORE13,LANGUAGE14')
+		t.close()
+
+
 class MainFrame(tk.Tk):
 	class Splash(tk.Frame):
 		def __init__(self, parent):
@@ -117,6 +124,7 @@ class MainFrame(tk.Tk):
 		load.grid()
 		self.update()
 
+		#createDefaults()
 		self.doValues()
 		self.deck = None
 		self.r = None

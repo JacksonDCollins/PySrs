@@ -9,6 +9,10 @@ curdate = "{}/{}/{}".format(date.split("-")[2].split(" ")[0], date.split("-")[1]
 ml = None
 def start():
 	global ml
+	if not os.path.isfile(consts.workdoc()):
+		with open(consts.workdoc(), 'w', encoding = 'utf-8') as t:
+			t.write('0SENTENCE,1TRANSLATION,2TAGS,3LEARNED,4ATTEMPTS,5SUCCESFUL ATTEMPS,6DAY LAST ATTEMPT,7LAST ATTEMPT RESULT,8DAY TO REVIEW,9ATTEMPT STREAK,10ID,DECK11,LEVEL12,IGNORE13,LANGUAGE14')
+		t.close()
 	with open(consts.workdoc(), 'r+', encoding = "utf-8") as f:
 		ml = f.read().split("\n")
 		print("accessed", datetime.now())

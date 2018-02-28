@@ -1,3 +1,5 @@
+import traceback
+
 def start(debug = False):
 	try:
 		from tkinter import messagebox
@@ -15,6 +17,6 @@ def start(debug = False):
 		installLibs.installMod(e.name)
 		start()
 	except Exception as e:
-		messagebox.showinfo("Error", e)
+		messagebox.showinfo("Error", (traceback.format_exc()))
 
 if __name__ == '__main__': start()
