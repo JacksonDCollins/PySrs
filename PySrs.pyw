@@ -14,8 +14,9 @@ def start(debug = False):
 			app.mainloop()
 			Maingui.makeBackup()
 	except ImportError as e:
-		installLibs.installMod(e.name)
-		start()
+		#installLibs.installMod(e.name)
+		#start()
+		messagebox.showinfo("Error", (traceback.format_exc()))
 	except Exception as e:
 		messagebox.showinfo("Error", (traceback.format_exc()))
 

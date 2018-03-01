@@ -3,8 +3,10 @@ import tkinter.ttk as ttk
 import guiLibs.rusEntry as rusEntry
 import helpLibs.srs as srs
 import guiLibs.AddDeckOrLevel as AddDeckOrLevel
+import guiLibs.addFromMemrise as addFromMemrise
 import helpLibs.mycsv as mycsv
 import helpLibs.consts as consts
+import helpLibs.fixfiles as fixfiles
 
 class newCards(tk.Frame):
 	def __init__(self, master, controller):
@@ -119,7 +121,39 @@ class newCards(tk.Frame):
 		self.backButton = tk.Button(self.secondFrame, text = "Go back", command = self.goback)
 		self.backButton.grid(column = 3, row = 0, sticky = 'nw')
 
+		self.addFromMemriseButton = tk.Button(self.secondFrame, text = "Add deck from Memrise", command = self.addFromMemriseFunc)
+		self.addFromMemriseButton.grid(column = 3, row = 1, sticky = 'nw')
+
 		self.populateDeckListbox()
+
+	def addFromMemriseFunc(self):
+		gui = addFromMemrise.addFromMemrise(self, 'deck')
+		while not gui.submitted:
+			self.controller.update()
+			name = gui.name
+		gui.destroy()
+
+		if name:
+			lastl = None
+			for i in fixfiles.fix(name, self.supportedLangsReversed):
+				i = i.split(',')
+				if not i[11] in self.newDeckLevels: 
+					self.newDeckLevels[i[11]] = {}
+					self.populateDeckListbox()
+					self.deckSelectListbox.see(tk.END)
+					self.deckSelectListbox.selection_set(tk.END)
+					self.deckSelectListbox.selection_anchor(tk.END)
+					self.updateDeckAndLevelEntry()
+					self.populateLevelsListbox()
+
+				if not lastl == i[12]: self.addNewLevel(); lastl = i[12]
+
+				self.newAdditions.append(i)
+				self.populateSessionAdditionsListbox()
+				self.populateEntriesListbox()
+				self.entryEntry.delete(0, tk.END)
+				self.translationEntry.delete(0, tk.END)
+				self.tagsEntry.delete(0, tk.END)
 
 	def Push(self):
 		if len(self.newAdditions) > 0:
