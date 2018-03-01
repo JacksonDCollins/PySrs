@@ -22,5 +22,5 @@ setup(
     'excludes': excludes,
     'include_msvcr': True,
 }},
-executables = [Executable("Main.pyw",base="Win32GUI")]
+executables = [Executable("PySrs.pyw",base="Win32GUI")]
 )
