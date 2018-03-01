@@ -1,5 +1,5 @@
 # PySrs
 
-Currently not in a state for new users. Need to work on inital set up and packaging of required external libraries. If downloaded as is from the repository, you'll be using the program while missing some vital files, you will need to create these yourself. May also require external libraries to be downloaded if you don't already have them.
+Should work as intended from a fresh install. Minimal testing.
 
-Am currently developing.
+Todo: Add a way of automatically downloading decks from memrise, can currently be done with a browser plugin. Add more functionality based around the currently selected langugae in the menus, add default langauge to config.
