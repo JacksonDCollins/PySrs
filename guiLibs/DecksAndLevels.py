@@ -57,7 +57,7 @@ class DecksAndLevels(tk.Frame):
 		self.newButton = tk.Button(self.f, text = "Add new decks and entries", command = self.new)
 		self.newButton.grid(row = 2)
 
-		self.buttonGoBack = tk.Button(self.f, text = "Go Back and commit saves", command = self.goMainMenu)
+		self.buttonGoBack = tk.Button(self.f, text = "Go Back and commit entry saves", command = self.goMainMenu)
 		self.buttonGoBack.grid(row = 0)
 
 		self.editFrame = tk.Frame(self)

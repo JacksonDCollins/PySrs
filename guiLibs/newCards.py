@@ -147,6 +147,15 @@ class newCards(tk.Frame):
 					self.populateLevelsListbox()
 
 				if not lastl == i[12]: self.addNewLevel(); lastl = i[12]
+				i[10] = 0
+				for L in self.curDecksAndLevels:
+					for j in self.curDecksAndLevels[L]:
+						for k in self.curDecksAndLevels[L][j]:
+							if int(i[10]) <= int(k[10]):
+								i[10] = str(int(k[10]) + 1)
+				for L in self.newAdditions:
+					if int(i[10]) <= int(L[10]):
+								i[10] = str(int(L[10]) + 1)
 
 				self.newAdditions.append(i)
 				self.populateSessionAdditionsListbox()
