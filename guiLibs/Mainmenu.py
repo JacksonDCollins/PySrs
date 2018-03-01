@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import helpLibs.srs as srs
 import helpLibs.audio as audio
+import helpLibs.consts as consts
 
 class Mainmenu(tk.Frame):
 	def __init__(self, master, controller, *args):
@@ -9,17 +10,18 @@ class Mainmenu(tk.Frame):
 		self.grid()
 		self.controller = controller
 		self.size = "800x500"
-		if not self.controller.langs == {}:
-			self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
+		if consts.defaultLang():
+			self.curlang = consts.defaultLang()
 		else:
-			self.controller.langs = {'none': 'None'}
-			self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
+			if not self.controller.langs == {}:
+				self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
+			else:
+				self.controller.langs = {'none': 'None'}
+				self.curlang = [self.controller.langs[x] for x in self.controller.langs][len(self.controller.langs) -1]
 		self.bind("<<ShowFrame>>", self.on_show_frame)
 		self.createWidgets()
 		
 	def createWidgets(self):
-		if not self.curlang in [self.controller.langs[x] for x in self.controller.langs]:
-			self.curlang = [self.controller.langs[x] for x in self.controller.langs][0]
 		self.reviewButton = tk.Button(self, text = "Review: {}".format(len(self.controller.toReview)), command = self.reviewLesson)
 		self.reviewButton.grid(row = 0, column = 1)
 		if len(self.controller.toReview) == 0:
