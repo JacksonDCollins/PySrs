@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-COURSE_URL = "/course/78463/hacking-russian-2/"
+COURSE_URL = '/course/128133/dirty-russian-by-native-russian-speaker/'
 CARD_COLUMNS = ("col_a", "col_b")
 
 import codecs, sys
@@ -7,7 +7,7 @@ import os
 import re
 import requests
 from bs4 import BeautifulSoup
-
+from lxml import html
 
 def lazy_property(fn):
     """Decorator that makes a property lazy-evaluated.
@@ -22,9 +22,8 @@ def lazy_property(fn):
     return _lazy_property
 
 
-def get_soup(url):
-    # TODO: it works actually w/o cookies:
-    res = requests.get(
+def get_soup(url, session):
+    res = session.get(
         url if url.strip().startswith("http") else "http://www.memrise.com" + url)
     soup = BeautifulSoup(res.text, "html.parser")
     return soup
@@ -32,6 +31,19 @@ def get_soup(url):
 class Course(object):
 
     def __init__(self, course_url):
+        payload = { "username": "MyPySrs", 
+                        "password": "MyPySrs", 
+                        "csrfmiddlewaretoken": "<TOKEN>"
+                        }
+        self.session =  requests.session()
+        login_url = 'https://www.memrise.com/login/'
+        result = self.session.get(login_url)
+        tree = html.fromstring(result.text)
+        authenticity_token = list(set(tree.xpath("//input[@name='csrfmiddlewaretoken']/@value")))[0]
+        payload['csrfmiddlewaretoken'] = authenticity_token
+
+        result = self.session.post(login_url, data = payload, headers = dict(referer=login_url)) 
+
         match = re.match(r'^(.*)/(\d+)/?$', course_url)
         if match:
             course_url, level = match.groups()
@@ -44,7 +56,7 @@ class Course(object):
 
     @lazy_property
     def soup(self):
-        return get_soup(self.course_url)
+        return get_soup(self.course_url, self.session)
 
     @property
     def name(self):
@@ -79,17 +91,15 @@ class Course(object):
         def get_text(value):
             return '' if value is None else value.text
 
-        soup = get_soup(level_url)
+        soup = get_soup(level_url, self.session)
 
         for thing in soup.find_all(lambda tag: tag.has_attr("data-thing-id")):
-
             try:
                 cols = (get_text(thing.find("div", class_=col_name).find("div", class_="text")) for col_name in CARD_COLUMNS)
             except:
                 continue
 
             yield cols
-
 
 def dump_course(*, course_url : str):
     """
@@ -99,18 +109,25 @@ def dump_course(*, course_url : str):
     mylines = []
     lNum = 1
     valid = False
-    for level_url, title in course.levels:
-        for card in course.cards(level_url=level_url):
+    if len([(x,y) for x,y in course.levels]) > 0:
+        for level_url, title in course.levels:
+            for card in course.cards(level_url=level_url):
+                ent ='\t'.join(card).split('\t')
+                if not ent[0] == '' and not ent[1] == '':
+                    print(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                    mylines.append(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                    valid = True
+                else: valid = False
+            if valid:
+                lNum += 1
+    else:
+        for card in course.cards(level_url=course_url):
             ent ='\t'.join(card).split('\t')
             if not ent[0] == '' and not ent[1] == '':
                 print(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
-                mylines.append(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
-                #f.write(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum)])+'\n')
+                mylines.append("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
                 valid = True
-               	#print('\t'.join(ent))
-               	#print("*** %s (%s)" % (title, level_url))
             else: valid = False
-
         if valid:
             lNum += 1
     return mylines

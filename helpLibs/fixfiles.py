@@ -14,9 +14,10 @@ def fix(url, langs):
 	#try:
 	lenr = len(linesfromMemrise)
 	for n,i in enumerate(linesfromMemrise):
+		print(i)
 		levelcount = 1
 		i = i.replace("\n", "")
-		i = i.split(',')
+		i = i.split('\t')
 		i[0] = i[0].replace(",", "commaChar")
 		i[1] = i[1].replace(",", "commaChar")
 		lang = i[4]

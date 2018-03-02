@@ -51,7 +51,7 @@ def makeBackup():
 											if os.path.isfile("{}\{}.mp3".format(folder, f)):
 												os.remove("{}\{}.mp3".format(folder, f))
 											else:
-												os.remove("{}\{}".format(folder, f))
+												os.remove("{}\{}".format(folder, f.replace("?","qchar") + '.mp3'))
 
 						else:
 							for folder, subfolders, files in os.walk("{}\{}\{}\{}".format(consts.cwd(),consts.fname(),i,j), topdown = False):

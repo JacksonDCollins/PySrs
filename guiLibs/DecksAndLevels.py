@@ -10,7 +10,7 @@ class DecksAndLevels(tk.Frame):
 		tk.Frame.__init__(self, master)
 		self.grid()
 		self.controller = controller
-		self.size = "900x600"
+		self.size = "920x600"
 		self.line = None
 		self.lastDeck = ()
 		self.lastLevel = ()

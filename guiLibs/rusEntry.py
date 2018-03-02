@@ -5,7 +5,7 @@ import unicodedata as u
 #from alphabet_detector import AlphabetDetector
 import time
 
-class mEntry(tk.Entry):
+class Entry(tk.Entry):
 	def __init__(self, master, *args, **kwargs):
 		tk.Entry.__init__(self, master, validate = 'all')
 		self.vcmd = (self.register(self.validate), '%S', '%d', '%i', '%P', '%s', '%v', '%V', '%W')
@@ -76,31 +76,31 @@ class mEntry(tk.Entry):
 				return True
 			
 			key = {}
-			key[83] = "б"
-			key[89] = "б"
-			key[74] = "аЙ"
-			key[67] = "б"
+			key[83] = "с"
+			key[89] = "ы"
+			key[74] = "й"
+			key[67] = "ц"
 
-			key[83, 32] = "б"
-			key[83, 83] = "бб"
-			key[89, 32] = "б"
-			key[89, 89] = "бб" 
-			key[74, 32] = "аЙ"
-			key[74, 74] = "аЙаЙ"
-			key[67, 32] = "б"
-			key[67, 67] = "бб"
+			key[83, 32] = "с"
+			key[83, 83] = "сс"
+			key[89, 32] = "ы"
+			key[89, 89] = "ыы" 
+			key[74, 32] = "й"
+			key[74, 74] = "йй"
+			key[67, 32] = "ц"
+			key[67, 67] = "цц"
 			
-			key[83, 72] = "б"
-			key[83, 67] = "б"
-			key[67, 72] = "б"
-			key[89, 65] = "б"
-			key[89, 79] = "б"
-			key[89, 69] = "б"
-			key[89, 85] = "б"
-			key[74, 65] = "б"
-			key[74, 79] = "б"
-			key[74, 69] = "б"
-			key[74, 85] = "б"
+			key[83, 72] = "ш"
+			key[83, 67] = "щ"
+			key[67, 72] = "ч"
+			key[89, 65] = "я"
+			key[89, 79] = "ё"
+			key[89, 69] = "э"
+			key[89, 85] = "ю"
+			key[74, 65] = "я"
+			key[74, 79] = "ё"
+			key[74, 69] = "э"
+			key[74, 85] = "ю"
 
 			if self.thischar == 8:
 				self.answerChar = key[self.lastchar]
@@ -129,7 +129,7 @@ class mEntry(tk.Entry):
 	def raiseEvent(self):
 		self.event_generate("<<textEntered>>")
 
-class Entry(tk.Entry):
+class mEntry(tk.Entry):
 	def __init__(self, master, *args, **kwargs):
 		tk.Entry.__init__(self, master)
 		for i in kwargs:

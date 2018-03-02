@@ -10,7 +10,7 @@ __version__ = "1.1.0"
 
 include_files = [os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tk86t.dll'), os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tcl86t.dll')]
 excludes = ["pip"]
-packages = ['idna',"pygame","gtts","bs4",'helpLibs','guiLibs']
+packages = ['idna',"pygame","gtts","bs4",'helpLibs','guiLibs', 'lxml']
 
 setup(
     name = "PySrs",
