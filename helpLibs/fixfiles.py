@@ -14,7 +14,6 @@ def fix(url, langs):
 	#try:
 	lenr = len(linesfromMemrise)
 	for n,i in enumerate(linesfromMemrise):
-		print(i)
 		levelcount = 1
 		i = i.replace("\n", "")
 		i = i.split('\t')

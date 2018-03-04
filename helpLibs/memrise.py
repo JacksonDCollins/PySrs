@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-COURSE_URL = '/course/128133/dirty-russian-by-native-russian-speaker/'
-COURSES_URL = 'https://www.memrise.com/courses/english/languages/'
+COURSE_URL = 'https://www.memrise.com/course/1123055/russian-4/'
+COURSES_URL = 'https://www.memrise.com{}languages/'.format('/courses/english/')
 CARD_COLUMNS = ("col_a", "col_b")
 
 import codecs, sys
@@ -32,6 +32,7 @@ def get_soup(url, session):
 
 class CourseBrowser(object):
     def __init__(self):
+        
         payload = { "username": "MyPySrs", 
                         "password": "MyPySrs", 
                         "csrfmiddlewaretoken": "<TOKEN>"
@@ -49,6 +50,17 @@ class CourseBrowser(object):
         self.getLanguages()
 
     def getLanguages(self):
+        availLangs = {}
+        soup = get_soup(self.courses_url, self.session)
+        soup = soup.find("ul",class_='dropdown-menu')
+
+       
+        lis = [x for x in soup if not x == '\n']
+        for li in lis:
+            availLangs[li.text.strip()] = li.find('a').attrs['href']
+       
+        self.courses_url = 'https://www.memrise.com{}languages/'.format(availLangs['English'])
+
         coursesDict = {}
         soup = get_soup(self.courses_url, self.session) 
         soup = soup.find("ul",{'data-default-category-id':'569'})
@@ -85,10 +97,8 @@ class CourseBrowser(object):
         allCat = {}
         cur1 = None
         cur2 = None
-        cur3 = None
         for li in lis:
-            mi = li[0]#.text.strip()
-            #print('\t' * li[1] + li[0].text.strip())
+            mi = li[0]
             if li[1] == 0:
                 if not mi in allCat: allCat[mi] = {}
                 cur1 = mi
@@ -99,7 +109,6 @@ class CourseBrowser(object):
 
             if li[1] == 2:
                 if not mi in allCat[cur1][cur2]: allCat[cur1][cur2].append(mi)
-                cur3 = mi
 
         for li in lis:
             mi = li[0]#.text.strip()
@@ -110,67 +119,20 @@ class CourseBrowser(object):
             if li[1] == 1:
                 cur2 = mi
                 if len(allCat[cur1][mi]) == 0:
-                    allCat[cur1][mi] = None
-        
-        #finished = False
-        #relo = {}
-        #cur = [soup]
-        #test = []
-        #sibs = []
-        # while len(cur) > 0:
-        #     try:
-        #         t = len(cur)-1
-        #         for i in [x for x in cur[len(cur)-1].children if not x == '\n']:
-        #             cur.append(i)
-        #             #test.append(i)
-        #             try:
-        #                 lasti = i.text.strip();
-        #                 if not '\n' in lasti:
-        #                     #print(relo[lasti], lasti)
-        #                     #if not mi in relo[lasti]: relo[lasti][mi] = {}
-        #                     #print(lasti)
-        #                     #lasti = i.text.strip()
-        #                     sibs = []
-        #             except Exception as e: print(e)
-        #         del cur[t]
-        #     except Exception as e:
-        #         relo[lasti] = cur[t].strip()
-        #         test.append(cur[t])
-        #         del cur[t]
-            
-        
-        #print(relo)
-            
+                    allCat[cur1][mi] = []
 
-            
+        hrefs = {}
+        for i in allCat:
+            hrefs[i.text.strip()] = i.attrs['href']
+            for j in allCat[i]:
+                try: hrefs[j.text.strip()] = j.find('a').attrs['href']
+                except: hrefs[j.text.strip()] = j.attrs['href']
+                for k in allCat[i][j]:
+                    try: hrefs[k.text.strip()] = k.find('a').attrs['href']
+                    except: hrefs[k.text.strip()] = k.attrs['href']
 
+        print(hrefs)
 
-        #for i in soup.children:
-        #    print(i)
-                    
-
-                #if not str(j) == "\n": print(j.prettify(), '1')
-            #for j in soup.find('li'):
-             #   print(i,j)
-            #for col in row.find_all('a'):
-             #   print(row, col)
-
-        #while len(soupSearch[len(soupSearch) - 1]) > 0:
-
-         #   soupSearch.append(soupSearch[len(soupSearch) - 1].find('a'))
-            
-            # try:
-            #     if not i.string.strip() == "":
-            #         if not i.string.strip() in coursesDict:
-            #             coursesDict[i.string.strip()] = []
-            # except:
-            #     pass
-            # for j in i:
-            #     try:
-            #         coursesDict[i.string.strip()].append(j.string.strip())
-            #     except:
-            #         pass
-        #print(coursesDict)
 
 class Course(object):
     def __init__(self, course_url):
@@ -257,8 +219,8 @@ def dump_course(*, course_url : str):
             for card in course.cards(level_url=level_url):
                 ent ='\t'.join(card).split('\t')
                 if not ent[0] == '' and not ent[1] == '':
-                    print(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
-                    mylines.append(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                    #print("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                    mylines.append("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
                     valid = True
                 else: valid = False
             if valid:
@@ -267,7 +229,7 @@ def dump_course(*, course_url : str):
         for card in course.cards(level_url=course_url):
             ent ='\t'.join(card).split('\t')
             if not ent[0] == '' and not ent[1] == '':
-                print(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                #print(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
                 mylines.append("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
                 valid = True
             else: valid = False
@@ -281,4 +243,4 @@ def main(url):
     course_url = COURSE_URL if len(sys.argv) < 2 else sys.argv[1]
     return dump_course(course_url=url)
 
-t = CourseBrowser()
+#t = CourseBrowser()

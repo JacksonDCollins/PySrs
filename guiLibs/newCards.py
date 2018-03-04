@@ -231,10 +231,10 @@ class newCards(tk.Frame):
 						if not self.deckSelectListbox.get(tk.ANCHOR) in self.newDeckLevels: self.newDeckLevels[self.deckSelectListbox.get(tk.ANCHOR)] = {}
 						self.newDeckLevels[self.deckSelectListbox.get(tk.ANCHOR)]["Level{}".format(int(self.levelSelectListbox.get(tk.END).split("Level")[1]) + 1)] = []
 
-				elif len([x for x in [x for x in self.newAdditions if x[11] == self.deckSelectListbox.get(tk.ANCHOR).replace("*","")] if x[12] == self.levelSelectListbox.get(tk.ANCHOR).replace("*","")]) > 0:
+				elif len([x for x in [x for x in self.newAdditions if x[11] == self.deckSelectListbox.get(tk.ANCHOR).replace("*","")] if x[12] == self.levelSelectListbox.get(tk.END).replace("*","")]) > 0:
 					self.newDeckLevels[self.deckSelectListbox.get(tk.ANCHOR)]["Level{}".format(int(self.levelSelectListbox.get(tk.END).split("Level")[1]) + 1)] = []
 			elif len([x for x in self.newAdditions if x[11] == self.deckSelectListbox.get(tk.ANCHOR).replace("*","")]) > 0:
-				if len([x for x in [x for x in self.newAdditions if x[11] == self.deckSelectListbox.get(tk.ANCHOR).replace("*","")] if x[12] == self.levelSelectListbox.get(tk.ANCHOR).replace("*","")]) > 0:
+				if len([x for x in [x for x in self.newAdditions if x[11] == self.deckSelectListbox.get(tk.ANCHOR).replace("*","")] if x[12] == self.levelSelectListbox.get(tk.END).replace("*","")]) > 0:
 					self.newDeckLevels[self.deckSelectListbox.get(tk.ANCHOR)]["Level{}".format(int(self.levelSelectListbox.get(tk.END).split("Level")[1]) + 1)] = []
 		
 		self.populateLevelsListbox()
