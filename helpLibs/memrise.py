@@ -10,6 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import html
 import traceback
+from datetime import datetime, timedelta
 
 def lazy_property(fn):
     """Decorator that makes a property lazy-evaluated.
@@ -135,7 +136,8 @@ class CourseBrowser(object):
 
 
 class Course(object):
-    def __init__(self, course_url):
+    def __init__(self, course_url, supLangs):
+        self.supLangs = supLangs
         payload = { "username": "MyPySrs", 
                         "password": "MyPySrs", 
                         "csrfmiddlewaretoken": "<TOKEN>"
@@ -206,41 +208,80 @@ class Course(object):
 
             yield cols
 
-def dump_course(*, course_url : str):
-    """
-    :course_url:   course URL
-    """
-    course = Course(course_url=course_url)
-    mylines = []
-    lNum = 1
-    valid = False
-    if len([(x,y) for x,y in course.levels]) > 0:
-        for level_url, title in course.levels:
-            for card in course.cards(level_url=level_url):
+    def fix(self):
+        linesfromMemrise = self.mylines
+        curdate = "{}/{}/{}".format(datetime.now().day,datetime.now().month,datetime.now().year)
+        returnlist = []
+        #try:
+        lenr = len(linesfromMemrise)
+        for n,i in enumerate(linesfromMemrise):
+            levelcount = 1
+            i = i.replace("\n", "")
+            i = i.split('\t')
+            i[0] = i[0].replace(",", "commaChar")
+            i[1] = i[1].replace(",", "commaChar")
+            lang = i[4]
+            i[4] = '0'
+            i.append("0")
+            i.append(curdate)
+            i.append("none")
+            i.append(curdate)
+            i.append("0")
+            i.append("")
+            i.append(i[2])
+            i.append(i[3])
+            #i[2] = download(i[0])
+            i[3] = "no"
+            i.append("no")
+            i.append(self.supLangs[lang])           
+            returnlist.append(i)
+        #except Exception as e:
+        #   print("dasf", e)
+        #   pass
+                                
+                            
+        tmplist = []
+        levelcount = 0
+        lastLevel = None
+        for l in returnlist:
+            if l[12] == lastLevel:
+                pass
+                #l[3] = "Level{}".format(levelcount)
+                #tmplist.append(",".join(l))
+            else:
+                lastLevel = l[12]
+                levelcount += 1
+            l[12] = "Level{}".format(levelcount)
+            tmplist.append(",".join(l))
+        self.newCourse = tmplist
+
+    def dump_course(self):
+        """
+        :course_url:   course URL
+        """
+        mylines = []
+        lNum = 1
+        valid = False
+        if len([(x,y) for x,y in self.levels]) > 0:
+            for level_url, title in self.levels:
+                for card in self.cards(level_url=level_url):
+                    ent ='\t'.join(card).split('\t')
+                    if not ent[0] == '' and not ent[1] == '':
+                        #print("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                        mylines.append("\t".join([ent[0], ent[1], self.name, 'Level{}'.format(lNum), self.lang]).replace(',','commaChar'))
+                        valid = True
+                    else: valid = False
+                if valid:
+                    lNum += 1
+        else:
+            for card in self.cards(level_url=self.course_url):
                 ent ='\t'.join(card).split('\t')
                 if not ent[0] == '' and not ent[1] == '':
-                    #print("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
-                    mylines.append("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                    #print(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
+                    mylines.append("\t".join([ent[0], ent[1], self.name, 'Level{}'.format(lNum), self.lang]).replace(',','commaChar'))
                     valid = True
                 else: valid = False
             if valid:
                 lNum += 1
-    else:
-        for card in course.cards(level_url=course_url):
-            ent ='\t'.join(card).split('\t')
-            if not ent[0] == '' and not ent[1] == '':
-                #print(",".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
-                mylines.append("\t".join([ent[0], ent[1], course.name, 'Level{}'.format(lNum), course.lang]))
-                valid = True
-            else: valid = False
-        if valid:
-            lNum += 1
-    return mylines
-
-
-def main(url):
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-    course_url = COURSE_URL if len(sys.argv) < 2 else sys.argv[1]
-    return dump_course(course_url=url)
-
+        self.mylines = mylines
 #t = CourseBrowser()

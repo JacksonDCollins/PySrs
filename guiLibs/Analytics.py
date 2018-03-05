@@ -93,7 +93,7 @@ class Analytics(tk.Frame):
 			if not self.startdate[0] in self.days:
 				self.days[self.startdate[0]] = []
 			for i in self.controller.total:
-				if i.split(",")[8] == self.startdate[0]:
+				if i.split(",")[8] == self.startdate[0] and i.split(',')[3] == 'yes':
 					self.days[self.startdate[0]].append(i)
 	
 	def clamp(self, n, minn, maxn): return max(min(maxn, n), minn)
