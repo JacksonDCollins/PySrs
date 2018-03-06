@@ -86,9 +86,7 @@ class Mainmenu(tk.Frame):
 		self.controller.show_frame("Analytics", me = self)
 
 	def learnLesson(self):
-		print('1',self.controller.r)
 		self.controller.r = srs.setupNewLesson(deck = self.controller.deck, review = False)
-		print(self.controller.r)
 		for n,i in enumerate(self.controller.r):
 			self.dlLabel['text'] = "Gathering files: {}/{}".format(n+1,len(self.controller.r))
 			self.controller.update()

@@ -11,6 +11,10 @@ from bs4 import BeautifulSoup
 from lxml import html
 import traceback
 from datetime import datetime, timedelta
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
+from pyvirtualdisplay import Display
 
 def lazy_property(fn):
     """Decorator that makes a property lazy-evaluated.
@@ -25,15 +29,18 @@ def lazy_property(fn):
     return _lazy_property
 
 
-def get_soup(url, session):
-    res = session.get(
-        url if url.strip().startswith("http") else "http://www.memrise.com" + url)
-    soup = BeautifulSoup(res.text, "html.parser")
-    return soup
+def get_soup(url, session = None):
+    if session:
+        res = session.get(
+            url if url.strip().startswith("http") else "http://www.memrise.com" + url)
+        soup = BeautifulSoup(res.text, "html.parser")
+        return soup
+    else:
+        soup = BeautifulSoup(url, "html.parser")
+        return soup
 
 class CourseBrowser(object):
     def __init__(self):
-        
         payload = { "username": "MyPySrs", 
                         "password": "MyPySrs", 
                         "csrfmiddlewaretoken": "<TOKEN>"
@@ -48,7 +55,10 @@ class CourseBrowser(object):
         self.session.post(login_url, data = payload, headers = dict(referer=login_url)) 
 
         self.courses_url = COURSES_URL
+        if __name__ == "__main__": self.browser = webdriver.PhantomJS()
+        else: self.browser = webdriver.PhantomJS(executable_path = 'helpLibs/phantomjs.exe')
         self.getLanguages()
+
 
     def getLanguages(self):
         availLangs = {}
@@ -121,19 +131,48 @@ class CourseBrowser(object):
                 cur2 = mi
                 if len(allCat[cur1][mi]) == 0:
                     allCat[cur1][mi] = []
+        self.allCat = allCat
 
         hrefs = {}
-        for i in allCat:
+        for i in self.allCat:
             hrefs[i.text.strip()] = i.attrs['href']
-            for j in allCat[i]:
+            for j in self.allCat[i]:
                 try: hrefs[j.text.strip()] = j.find('a').attrs['href']
                 except: hrefs[j.text.strip()] = j.attrs['href']
-                for k in allCat[i][j]:
+                for k in self.allCat[i][j]:
                     try: hrefs[k.text.strip()] = k.find('a').attrs['href']
                     except: hrefs[k.text.strip()] = k.attrs['href']
+        self.hrefs = hrefs
 
-        print(hrefs)
+    def loadCourses(self, lang):
+        self.courses_url = 'https://www.memrise.com{}'.format(self.hrefs[lang])      
+        self.browser.get(self.courses_url)
+        self.loadMore()
+        
+    def loadMore(self):
+        canScroll = True
+        while canScroll:
+            try:
+                if not canScroll: break
+                button = self.browser.find_element_by_class_name("infinite-scroller-trigger")
+                button.click();
+                canScroll = False
+            except NoSuchElementException as e:
+                canScroll = False
+            except Exception as e:
+                self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
+    def getHtml(self):
+        return self.browser.page_source
+
+    def getCourses(self):
+        soup = get_soup(self.getHtml())
+        featured = soup.find('a',{'class':'featured-course-box'})
+        courses = soup.findAll('div', {'class': 'course-box-wrapper'})
+        coursesList = [featured]
+        for i in courses:
+            coursesList.append(i)
+        return coursesList
 
 class Course(object):
     def __init__(self, course_url, supLangs):
@@ -284,4 +323,7 @@ class Course(object):
             if valid:
                 lNum += 1
         self.mylines = mylines
-#t = CourseBrowser()
+
+# t = CourseBrowser()
+# t.loadCourses()
+# print(t.getCourses()[1])

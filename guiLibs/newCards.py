@@ -4,6 +4,7 @@ import guiLibs.rusEntry as rusEntry
 import helpLibs.srs as srs
 import guiLibs.AddDeckOrLevel as AddDeckOrLevel
 import guiLibs.addFromMemrise as addFromMemrise
+import guiLibs.browseFromMemrise as browseFromMemrise
 import helpLibs.mycsv as mycsv
 import helpLibs.consts as consts
 
@@ -118,13 +119,56 @@ class newCards(tk.Frame):
 		self.removeSelectedAdditionButton.grid(column = 3, row = 1)
 
 		self.backButton = tk.Button(self.secondFrame, text = "Go back", command = self.goback)
-		self.backButton.grid(column = 3, row = 0, sticky = 'nw')
+		self.backButton.grid(column = 4, row = 0, sticky = 'nw')
 
 		self.addFromMemriseButton = tk.Button(self.secondFrame, text = "Add deck from Memrise", command = self.addFromMemriseFunc)
-		self.addFromMemriseButton.grid(column = 3, row = 1, sticky = 'nw')
+		self.addFromMemriseButton.grid(column = 3, row = 0, sticky = 'nw')
+
+		self.browseFromMemriseButton = tk.Button(self.secondFrame, text = "Browse decks from Memrise", command = self.browseFromMemriseFunc)
+		self.browseFromMemriseButton.grid(column = 3, row = 1, sticky = 'nw')
 
 		self.populateDeckListbox()
 
+	def browseFromMemriseFunc(self):
+		gui = browseFromMemrise.browseFromMemrise(self)
+		while not gui.submitted:
+			self.controller.update()
+			name = gui.name
+		
+		newCourse = gui.newCourse
+
+		if name:
+			lastl = None
+			for i in newCourse: #fixfiles.fix(name, self.supportedLangsReversed):
+				i = i.split(',')
+				if not i[11] in self.newDeckLevels: 
+					self.newDeckLevels[i[11]] = {}
+					self.populateDeckListbox()
+					self.deckSelectListbox.see(tk.END)
+					self.deckSelectListbox.selection_set(tk.END)
+					self.deckSelectListbox.selection_anchor(tk.END)
+					#self.updateDeckAndLevelEntry()
+					self.populateLevelsListbox()
+
+				if not lastl == i[12]: self.addNewLevel(); lastl = i[12]
+				i[10] = 0
+				for L in self.curDecksAndLevels:
+					for j in self.curDecksAndLevels[L]:
+						for k in self.curDecksAndLevels[L][j]:
+							if int(i[10]) <= int(k[10]):
+								i[10] = str(int(k[10]) + 1)
+				for L in self.newAdditions:
+					if int(i[10]) <= int(L[10]):
+								i[10] = str(int(L[10]) + 1)
+
+				self.newAdditions.append(i)
+				self.populateEntriesListbox()
+				self.entryEntry.delete(0, tk.END)
+				self.translationEntry.delete(0, tk.END)
+				self.tagsEntry.delete(0, tk.END)
+		self.populateSessionAdditionsListbox()
+		gui.destroy()
+		
 	def addFromMemriseFunc(self):
 		gui = addFromMemrise.addFromMemrise(self)
 		while not gui.submitted:
