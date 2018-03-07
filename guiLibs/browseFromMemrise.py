@@ -65,25 +65,30 @@ class browseFromMemrise(tk.Toplevel):
 				l2 = self.langsLBox2.get(tk.ANCHOR)
 				self.update()
 				self.browser.loadCourses(l2)
-				self.browser.loadMore()
 				self.showCourses()
 
 		if e.widget == self.langsLBox3:
 			l3 = self.langsLBox3.get(tk.ANCHOR)
 			self.update()
 			self.browser.loadCourses(l3)
-			self.browser.loadMore()
 			self.showCourses()
 
 	def showCourses(self):
 		for i in self.coursesHolder.interior.winfo_children():
 			i.destroy()
 
+		col = 0
+		row = 0
 		for i in self.browser.getCourses():
+
 			#p = tk.PanedWindow(self.coursesHolder.interior, orient = tk.VERTICAL, relief = 'groove', borderwidth = 2)
 			#p.add(courseHolder(self, i), pady = 5)
 			p = courseHolder(self.coursesHolder.interior, i)
-			p.grid(columnspan = 3, pady = 5)
+			p.grid(column = col, row = row, pady = 5, columnspan = 3 if row == 0 else 1)
+			col += 1
+			if col == 3: col = 0; row += 1
+			if row == 0: row = 1; col -= 1
+			
 
 	def sendNameClose(self):
 		self.name = None
@@ -91,14 +96,19 @@ class browseFromMemrise(tk.Toplevel):
 
 class courseHolder(tk.Frame):
 	def __init__(self, parent, *args, **kw):
-		tk.Frame.__init__(self, parent)
+		
+		self.controller = parent
+		
 		Ctype = None
 		t = args[0].find('div', {'class':'details'}).find('h2')
 		if t == None:
 			Ctype = 'featured'
+			tk.Frame.__init__(self, parent)
 		else:
 			Ctype = 'normal'
+			tk.Frame.__init__(self, parent)
 		self.renderCourseFrame(Ctype, args[0])
+
 
 	def renderCourseFrame(self, Ctype, code):	
 		if Ctype == 'featured':
@@ -153,7 +163,7 @@ class courseHolder(tk.Frame):
 			courseName = code.find('a',{'class':'inner'}).text.strip()
 
 			label = tk.Label(self, text = courseName)
-			label.grid()
+			label.grid(row = 0, column = 0)
 
 		elif Ctype == 'normal':
 			"""<a class="featured-course-box" href="/course/110929/romanian-101/">
@@ -240,11 +250,11 @@ class VerticalScrolledFrame(tk.Frame):
             canvas.config(scrollregion="0 0 %s %s" % size)
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # update the canvas's width to fit the inner frame
-                canvas.config(width=interior.winfo_reqwidth())
+                canvas.config(width=700)#interior.winfo_reqwidth())
         interior.bind('<Configure>', _configure_interior)
 
         def _configure_canvas(event):
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # update the inner frame's width to fill the canvas
-                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+                canvas.itemconfigure(interior_id, width=700)#canvas.winfo_width())
         canvas.bind('<Configure>', _configure_canvas)
