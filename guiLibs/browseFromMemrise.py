@@ -111,21 +111,53 @@ class browseFromMemrise(tk.Toplevel):
 				i.bind('<<ListboxSelect>>', self.lBoxSelect)
 
 	def showCourses(self):
-		for i in self.coursesHolder.interior.winfo_children():
-			i.destroy()
-
+		toAdd = self.browser.getCourses()
+		
 		col = 0
 		row = 0
-		for i in self.browser.getCourses():
+		for i in self.coursesHolder.interior.winfo_children():
+			if i.id in toAdd:
+				toAdd.remove(i.id)
+				col += 1
+				if col == 3: col = 0; row += 1
+				if row == 0: row = 1; col -= 1
+				#i.destroy()
+			else:
+				i.destroy()
+
+		
+		for i in toAdd:
 			width = self.coursesHolder['width']
 			if row > 0: width /= 3
-			p = tk.PanedWindow(self.coursesHolder.interior, borderwidth = 0, width = width)
-			def g(): p.add(courseHolder(self, i), pady = 5)
-			def k(): p.grid(column = col, row = row, columnspan = 3 if row == 0 else 1)
+			p = tk.PanedWindow(self.coursesHolder.interior, borderwidth = 0, width = width)#, height = 110 if not row == 0 else 160)
+			p.id = i
+			def g(): p.add(courseHolder(self, i, width), pady = 5)
+			def k(): p.grid(column = col, row = row, columnspan = 3 if row == 0 else 1, sticky = 'nw')
 			doTWork(self, g, after = k, daemon = True)
+			
+		
+
 			col += 1
 			if col == 3: col = 0; row += 1
 			if row == 0: row = 1; col -= 1
+
+	def sendName(self, name):
+		self.name = name
+		if not self.name == "":
+			self.loadingLabel['text'] = 'Retrieving info'
+			self.update()
+			self.newCourse = memrise.Course(self.name, self.controller.supportedLangsReversed)
+
+			self.loadingLabel['text'] = 'Downloading'
+			self.update()
+			self.newCourse.dump_course()
+
+			self.loadingLabel['text'] = 'Cleaning it up'
+			self.update()
+			self.newCourse.fix()
+
+			self.newCourse = self.newCourse.newCourse
+			self.submitted = True
 
 	def sendNameClose(self):
 		self.name = None
@@ -133,155 +165,90 @@ class browseFromMemrise(tk.Toplevel):
 
 class courseHolder(tk.Frame):
 	def __init__(self, parent, *args, **kw):
+		tk.Frame.__init__(self, parent, borderwidth = 2, relief = tk.RIDGE)
 		self.controller = parent
+		self.width = args[1]
 		Ctype = None
 		t = args[0].attrs['class'][0]
 		if t == 'featured-course-box':
 			Ctype = 'featured'
-			tk.Frame.__init__(self, parent, borderwidth = 2, relief = tk.RIDGE)
 		elif t == 'course-box-wrapper':
 			Ctype = 'normal'
-			tk.Frame.__init__(self, parent, borderwidth = 2, relief = tk.RIDGE)
 		self.renderCourseFrame(Ctype, args[0])
 
-	def renderCourseFrame(self, Ctype, code):	
-		if Ctype == 'featured':
-			"""<a class="featured-course-box" href="/course/110929/romanian-101/">
-				<div class="inner-wrap">
-				 <span class="start-icon ico ico-arr-right ico-l">
-				 </span>
-				 <div class="picture-wrap">
-				  <img alt="" src="https://d2rhekw5qr4gcj.cloudfront.net/img/400sqf/from/uploads/course_photos/76031_memrise.jpg"/>
-				 </div>
-				 <div class="details-wrap">
-				  <span class="author pull-right" data-direction="bottom" data-role="hovercard" data-user-id="839544">
-				   by
-				   <strong>
-				    TeonaBaetu
-				   </strong>
-				  </span>
-				  <div class="details">
-				   <h2>
-				    Romanian 101
-				   </h2>
-				   <div class="description">
-				    Your Romanian language survival kit. (with audio) 
+	def downloadCourse(self, url):
+		url = 'http://www.memrise.com{}'.format(url)
+		self.controller.sendName(url)
 
-					Please post feedback here:
-					https://community.memrise.com/t/course-forum-romanian-101-typo-in-solutions/1956/9
-				   </div>
-				  </div>
-				  <div class="stats">
-				   <span class="stat">
-				    <span class="ico ico-user">
-				    </span>
-				    19.2k learners
-				   </span>
-				   <span class="stat">
-				    <span class="ico ico-clock">
-				    </span>
-				    3h avg duration
-				   </span>
-				  </div>
-				 </div>
-				</div>
-				<span class="target-photo">
-				 <img alt="" src="https://d2rhekw5qr4gcj.cloudfront.net/uploads/language_photos/Romanian.png"/>
-				</span>
-			   </a>
-			"""
+	def renderCourseFrame(self, Ctype, code):
+		def downloadPic(coursePicture, size):
+				raw_data = requests.get(coursePicture).content
+				im = Image.open(BytesIO(raw_data))
+				im = im.resize(size=size)
+				image = ImageTk.PhotoImage(im)
+				label1 = tk.Label(coursePictureFrame, image=image)
+				label1.image = image
+				label1.grid()
+
+		if Ctype == 'featured':
 			courseName = code.find('div', {'class':'details'}).find('h2').text.strip()
 			coursePicture = code.find('div', {'class':'picture-wrap'}).find('img').attrs['src']
 			courseDesc = code.find('div', {'class':'description'}).text.strip()
-			courseLearning = code.find('div', {'class':'stats'} ).find('span',{'class':'ico ico-user'}).text.strip()
-			courseDuration = code.find('div', {'class':'stats'}).find('span',{'class':'ico ico-clock'}).text.strip()
-			courseAuthor = code.find('div',  {'class':'details-wrap'}).text.strip()
+			courseLearning = code.find('div', {'class':'stats'}).find('span', {'class':'stat'}).text.strip()
+			courseDuration = code.find('div', {'class':'stats'}).find('span', {'class':'stat'}).find_next_sibling().text.strip()
+			courseAuthor = code.find('div',  {'class':'details-wrap'}).find('strong').text.strip()
 			courseUrl = code.attrs['href']
 			
-			label = tk.Label(self, text = courseName)
-			label.grid()
+			courseNameLabel = tk.Label(self, text = courseName, wraplength = self.width/3)
+			courseNameLabel.grid(row = 0, column = 0, sticky = 'nw')
 
-			def test(coursePicture):
-				raw_data = requests.get(coursePicture).content
-				im = Image.open(BytesIO(raw_data))
-				im = im.resize(size=(64,64))
-				image = ImageTk.PhotoImage(im)
-				label1 = tk.Label(self, image=image)
-				label1.image = image
-				label1.grid()
-			doTWork(self.controller, test, kwargs={'coursePicture':coursePicture}, after = self.update)	
+			coursePictureFrame = tk.Frame(self, height = 128, width = 128)
+			coursePictureFrame.grid(row= 1, column = 0, sticky = 'nw', rowspan = 3, pady = 10)
+			doTWork(self.controller, downloadPic, kwargs={'coursePicture':coursePicture,'size':(128,128)}, after = self.update, daemon = True)
+
+			courseDescLabel = tk.Label(self, text = courseDesc, wraplength = self.width * (2/3))
+			courseDescLabel.grid(row = 1, column = 1, rowspan = 2, columnspan = 2, sticky = 'nw')
+
+			courseLearningLabel = tk.Label(self, text = 'Learning: {}'.format(courseLearning), wraplength = self.width/3)
+			courseLearningLabel.grid(row = 3, column = 2, sticky = 'nw')
+
+			courseDurationLabel = tk.Label(self, text = 'Duration: {}'.format(courseDuration), wraplength = self.width/3)
+			courseDurationLabel.grid(row = 3, column = 1, sticky = 'nw')
+
+			courseAuthorLabel = tk.Label(self, text = 'Author: {}'.format(courseAuthor), wraplength = self.width/3)
+			courseAuthorLabel.grid(row = 0, column = 1, sticky = 'nw')
+
+			courseDownloadButton = tk.Button(self, text = 'Download', command = lambda: self.downloadCourse(courseUrl))
+			courseDownloadButton.grid(row = 0, column = 2, sticky = 'ne')
 
 		elif Ctype == 'normal':
-			"""<div class="course-box-wrapper col-xs-12 col-sm-6 col-md-4">
-				<div class="course-box ">
-				 <div class="inner-wrap">
-				  <a class="picture-wrapper" href="/course/53658/romanian-for-beginners/">
-				   <div class="course-box-picture" style='background-image: url("https://d2rhekw5qr4gcj.cloudfront.net/img/400sqf/from/uploads/course_photos/prenos.jpg")'>
-				   </div>
-				  </a>
-				  <div class="details-wrapper">
-				   <div class="target-photo">
-				    <img alt="" src="https://d2rhekw5qr4gcj.cloudfront.net/uploads/language_photos/Romanian.png"/>
-				   </div>
-				   <div class="clearfix">
-				    <span class="author pull-right">
-				     by
-				     <span>
-				      _deleted_151212_2050_34
-				     </span>
-				    </span>
-				    <a class="category" href="/courses/english/romanian/" title="Romanian">
-				     Romanian
-				    </a>
-				   </div>
-				   <h3>
-				    <a class="inner" href="/course/53658/romanian-for-beginners/" title="Romanian for beginners">
-				     Romanian for beginners
-				    </a>
-				   </h3>
-				   <div class="details">
-				    <div class="stats">
-				     <span class="stat" title="
-				                         9.69k people are learning this course
-				                         ">
-				      <span class="ico ico-user">
-				      </span>
-				      9.69k
-				     </span>
-				     <span class="stat" title="This course takes about 4h">
-				      <span class="ico ico-clock">
-				      </span>
-				      4h
-				     </span>
-				    </div>
-				   </div>
-				  </div>
-				 </div>
-				</div>
-			   </div>
-				"""
-
 			courseName = code.find('a', {'class':'inner'}).text.strip()
 			coursePicture = code.find('div', {'class':'course-box-picture'}).attrs['style'].split('"')[1].split('"')[0].replace('https','http')
-			courseLearning = code.find('div', {'class':'stats'}).find('span', {'class':'ico ico-user'}).text.strip()
-			courseDuration = code.find('div', {'class':'stats'}).find('span', {'class':'ico ico-clock'}).text.strip()
-			courseAuthor = code.find('span', {'class':'author pull-right'}).text.strip()
+			courseLearning = code.find('div', {'class':'stats'}).find('span', {'class':'stat'}).text.strip()
+			courseDuration = code.find('div', {'class':'stats'}).find('span', {'class':'stat'}).find_next_sibling().text.strip()
+			try: courseAuthor = code.find('span', {'class':'author pull-right'}).find('a').text.strip()
+			except:	courseAuthor = 'UserDeleted'
 			courseUrl = code.find('a', {'class':'inner'}).attrs['href']
 
-			label = tk.Label(self, text = courseName)
-			label.grid()
+			courseNameLabel = tk.Label(self, text = courseName, wraplength = self.width * (2/3))
+			courseNameLabel.grid(row = 0, column = 0, sticky = 'nw', columnspan = 2)
 
-			def test(coursePicture):
-				raw_data = requests.get(coursePicture).content
-				im = Image.open(BytesIO(raw_data))
-				im = im.resize(size=(64,64))
-				image = ImageTk.PhotoImage(im)
-				label1 = tk.Label(self, image=image)
-				label1.image = image
-				label1.grid()
-			doTWork(self.controller, test, kwargs={'coursePicture':coursePicture}, after = self.update)
+			coursePictureFrame = tk.Frame(self, height = 64, width = 64)
+			coursePictureFrame.grid(row=1, column = 0, sticky = 'nw', rowspan = 3, pady = 10)
+			doTWork(self.controller, downloadPic, kwargs={'coursePicture':coursePicture,'size':(64,64)}, after = self.update, daemon = True)
+
+			courseLearningLabel = tk.Label(self, text = "Learning: {}".format(courseLearning), wraplength = self.width * (2/3))
+			courseLearningLabel.grid(row = 3, column = 1, sticky = 'nw', columnspan = 2)
+
+			courseDurationLabel = tk.Label(self, text = "Duration: {}".format(courseDuration), wraplength = self.width * (2/3))
+			courseDurationLabel.grid(row = 2, column = 1, sticky = 'nw', columnspan = 2)
+
+			courseAuthorLabel = tk.Label(self, text = 'Author: {}'.format(courseAuthor), wraplength = self.width * (2/3))
+			courseAuthorLabel.grid(row = 1, column = 1, sticky = 'nw', columnspan = 2)
+
+			courseDownloadButton = tk.Button(self, text = 'Download', command = lambda: self.downloadCourse(courseUrl))
+			courseDownloadButton.grid(row = 0, column = 2, sticky = 'ne')
 			
-
 class VerticalScrolledFrame(tk.Frame):
     """A pure Tkinter scrollable frame that actually works!
     * Use the 'interior' attribute to place widgets inside the scrollable frame

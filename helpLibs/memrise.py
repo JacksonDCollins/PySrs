@@ -9,6 +9,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from lxml import html
+import lxml
 import traceback
 from datetime import datetime, timedelta
 from selenium import webdriver
@@ -33,10 +34,10 @@ def get_soup(url, session = None):
     if session:
         res = session.get(
             url if url.strip().startswith("http") else "http://www.memrise.com" + url)
-        soup = BeautifulSoup(res.text, "html.parser")
+        soup = BeautifulSoup(res.text, "lxml")
         return soup
     else:
-        soup = BeautifulSoup(url, "html.parser")
+        soup = BeautifulSoup(url, "lxml")
         return soup
 
 class CourseBrowser(object):
