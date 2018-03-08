@@ -142,6 +142,7 @@ class browseFromMemrise(tk.Toplevel):
 			if row == 0: row = 1; col -= 1
 
 	def sendName(self, name):
+		self.browser.selfExit()
 		self.name = name
 		if not self.name == "":
 			self.loadingLabel['text'] = 'Retrieving info'
@@ -160,6 +161,7 @@ class browseFromMemrise(tk.Toplevel):
 			self.submitted = True
 
 	def sendNameClose(self):
+		self.browser.selfExit()
 		self.name = None
 		self.submitted = True
 

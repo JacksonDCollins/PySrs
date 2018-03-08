@@ -56,10 +56,12 @@ class CourseBrowser(object):
         self.session.post(login_url, data = payload, headers = dict(referer=login_url)) 
 
         self.courses_url = COURSES_URL
-        if __name__ == "__main__": self.browser = webdriver.PhantomJS()
-        else: self.browser = webdriver.PhantomJS(executable_path = 'helpLibs/phantomjs.exe')
+        try: self.browser = webdriver.PhantomJS(executable_path = 'phantomjs.exe')
+        except: self.browser = webdriver.PhantomJS(executable_path = 'helpLibs/phantomjs.exe')
         self.getLanguages()
 
+    def selfExit(self):
+        self.browser.quit()
 
     def getLanguages(self):
         availLangs = {}

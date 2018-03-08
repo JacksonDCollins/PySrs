@@ -8,9 +8,9 @@ os.environ['TK_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tk8.6')
 
 __version__ = "1.1.0"
 
-include_files = [os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tk86t.dll'), os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tcl86t.dll')]
+include_files = [os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tk86t.dll'), os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tcl86t.dll'),'helpLibs/phantomjs.exe']
 excludes = ["pip"]
-packages = ['idna',"pygame","gtts","bs4",'helpLibs','guiLibs', 'lxml']
+packages = ['idna',"pygame","gtts","bs4",'helpLibs','guiLibs', 'lxml', 'win32process']
 
 setup(
     name = "PySrs",
