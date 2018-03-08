@@ -5,7 +5,7 @@ import unicodedata as u
 #from alphabet_detector import AlphabetDetector
 import time
 
-class Entry(tk.Entry):
+class mEntry(tk.Entry):
 	def __init__(self, master, *args, **kwargs):
 		tk.Entry.__init__(self, master, validate = 'all')
 		self.vcmd = (self.register(self.validate), '%S', '%d', '%i', '%P', '%s', '%v', '%V', '%W')
@@ -82,13 +82,13 @@ class Entry(tk.Entry):
 			key[67] = "ц"
 
 			key[83, 32] = "с"
-			key[83, 83] = "сс"
+			key[83, 83] = "сс"
 			key[89, 32] = "ы"
-			key[89, 89] = "ыы" 
+			key[89, 89] = "ыы" 
 			key[74, 32] = "й"
 			key[74, 74] = "йй"
 			key[67, 32] = "ц"
-			key[67, 67] = "цц"
+			key[67, 67] = "цц"
 			
 			key[83, 72] = "ш"
 			key[83, 67] = "щ"
@@ -129,7 +129,7 @@ class Entry(tk.Entry):
 	def raiseEvent(self):
 		self.event_generate("<<textEntered>>")
 
-class mEntry(tk.Entry):
+class Entry(tk.Entry):
 	def __init__(self, master, *args, **kwargs):
 		tk.Entry.__init__(self, master)
 		for i in kwargs:

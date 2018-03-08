@@ -9,7 +9,7 @@ import requests
 import time
 import math
 import sys
-import helpLibs.consts as consts
+#import helpLibs.consts as consts
 
 volume = 0.8
 
@@ -58,6 +58,23 @@ def preload(i):
 
 def getVoice(word, lang):
 	session = requests.session()
+
+	# payload = { "login": "MyPySrs", 
+ #                        "password": "MyPySrs"}#, 
+ #                        #"csrfmiddlewaretoken": "<TOKEN>"}
+	# login_url = 'https://forvo.com/login/'
+	# result = session.get(login_url)
+	# #tree = html.fromstring(result.text)
+	# #authenticity_token = list(set(tree.xpath("//input[@name='csrfmiddlewaretoken']/@value")))[0]
+	# #payload['csrfmiddlewaretoken'] = authenticity_token
+
+	# session.post(login_url, data = payload, headers = dict(referer=login_url)) 
+
+	# word = 'https://forvo.com/word/{}/#{}/'.format(word,lang)
+	# soup = BeautifulSoup(session.get(word).content, 'html.parser')
+	# dl = soup.find('p',{'class':'download'})
+	# print(dl)
+
 	url = 'http://shtooka.net/search.php?str={}'.format(word)
 	r = session.get(url)
 
@@ -66,6 +83,7 @@ def getVoice(word, lang):
 	a = soup.findAll("h1")
 	for i in a:
 		for j in i.findAll("img"):
+			print(j)
 			if 'class="player' in str(i):
 				if lang in str(i).split("'")[3].split("'")[0]:
 					mp3url = str(i).split("'")[3].split("'")[0]
@@ -114,4 +132,4 @@ def dAllVoice(workdoc):
 			j = 0
 
 #if __name__ == "__main__":
-#	dAllVoice(consts.workdoc())
+#	getVoice('пока', 'ru')
