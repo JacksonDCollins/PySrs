@@ -132,7 +132,6 @@ def afterAnswer(w, i, root):
 	w["bg"] = "white"
 	w["fg"] = "black"
 	if not root.lineEdited:
-		print(root.line)
 		if not 'audio-' in root.line.split(',')[1].replace('commaChar', ','): audio.preload(root.line.split(',')); audio.play(root.line.split(','))
 		else: audio.play(root.line.split(','), a = True)
 	root.update()
@@ -474,7 +473,6 @@ def doLearnLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 		random.shuffle(sentences)
 		for n,i in enumerate(sentences):
 			root.line = i.split(",")
-			print(root.line)
 			eWidget.delete(0, len(eWidget.get()))
 			if not 'img-' in root.line[1].replace('commaChar', ',') and not 'audio-' in root.line[1].replace('commaChar', ','):
 				tWidget.configure(text = root.line[1].replace("commaChar", ","), image = None)
