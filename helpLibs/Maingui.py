@@ -49,9 +49,13 @@ def makeBackup():
 											pass
 										else:
 											if os.path.isfile("{}\{}.mp3".format(folder, f)):
-												os.remove("{}\{}.mp3".format(folder, f))
+												if not 'audio-' in "{}\{}.mp3".format(folder, f):
+													os.remove("{}\{}.mp3".format(folder, f))
 											else:
-												os.remove("{}\{}".format(folder, f.replace("?","qchar") + '.mp3'))
+												try:
+													if not 'audio-' in "{}\{}".format(folder, f.replace("?","qchar") + '.mp3'):
+														os.remove("{}\{}".format(folder, f.replace("?","qchar") + '.mp3'))
+												except: pass
 
 						else:
 							for folder, subfolders, files in os.walk("{}\{}\{}\{}".format(consts.cwd(),consts.fname(),i,j), topdown = False):

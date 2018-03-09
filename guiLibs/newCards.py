@@ -7,6 +7,8 @@ import guiLibs.addFromMemrise as addFromMemrise
 import guiLibs.browseFromMemrise as browseFromMemrise
 import helpLibs.mycsv as mycsv
 import helpLibs.consts as consts
+import helpLibs.audio as audio
+import threading
 
 class newCards(tk.Frame):
 	def __init__(self, master, controller):
@@ -137,10 +139,34 @@ class newCards(tk.Frame):
 		
 		newCourse = gui.newCourse
 
+		self.imgDl = []
+		self.audDl = []
 		if name:
 			lastl = None
 			for i in newCourse: #fixfiles.fix(name, self.supportedLangsReversed):
 				i = i.split(',')
+				if i[0].split('-')[0] == 'audio':
+					temp = i[0]
+					i[0] = i[1]
+					i[1] = temp
+					self.audDl.append(i.copy())
+					i[1] = 'audio-' + i[1].split('/')[len(i[1].split('/')) - 1]
+
+				elif i[1].split('-')[0] == 'audio':
+					self.audDl.append(i.copy())
+					i[1] = 'audio-' + i[1].split('/')[len(i[1].split('/')) - 1]
+
+				elif i[0].split('-')[0] == 'img':
+					temp = i[0]
+					i[0] = i[1]
+					i[1] = temp
+					self.imgDl.append(i.copy())
+					i[1] = 'img-' + i[1].split('/')[len(i[1].split('/')) -1]
+
+				elif i[1].split('-')[0] == 'img':
+					self.imgDl.append(i.copy())
+					i[1] = 'img-' + i[1].split('/')[len(i[1].split('/')) -1]
+
 				if not i[11] in self.newDeckLevels: 
 					self.newDeckLevels[i[11]] = {}
 					self.populateDeckListbox()
@@ -166,6 +192,7 @@ class newCards(tk.Frame):
 				self.entryEntry.delete(0, tk.END)
 				self.translationEntry.delete(0, tk.END)
 				self.tagsEntry.delete(0, tk.END)
+
 		self.populateSessionAdditionsListbox()
 		gui.destroy()
 		
@@ -177,10 +204,34 @@ class newCards(tk.Frame):
 		
 		newCourse = gui.newCourse
 
+		self.imgDl = []
+		self.audDl = []
 		if name:
 			lastl = None
 			for i in newCourse: #fixfiles.fix(name, self.supportedLangsReversed):
 				i = i.split(',')
+				if i[0].split('-')[0] == 'audio':
+					temp = i[0]
+					i[0] = i[1]
+					i[1] = temp
+					self.audDl.append(i.copy())
+					i[1] = 'audio-' + i[1].split('/')[len(i[1].split('/')) - 1]
+
+				elif i[1].split('-')[0] == 'audio':
+					self.audDl.append(i.copy())
+					i[1] = 'audio-' + i[1].split('/')[len(i[1].split('/')) - 1]
+
+				elif i[0].split('-')[0] == 'img':
+					temp = i[0]
+					i[0] = i[1]
+					i[1] = temp
+					self.imgDl.append(i.copy())
+					i[1] = 'img-' + i[1].split('/')[len(i[1].split('/')) -1]
+
+				elif i[1].split('-')[0] == 'img':
+					self.imgDl.append(i.copy())
+					i[1] = 'img-' + i[1].split('/')[len(i[1].split('/')) -1]
+
 				if not i[11] in self.newDeckLevels: 
 					self.newDeckLevels[i[11]] = {}
 					self.populateDeckListbox()
@@ -231,6 +282,13 @@ class newCards(tk.Frame):
 			self.levelSelectListbox.see(tk.ANCHOR)
 
 			self.populateEntriesListbox()
+
+			def d(self):
+				for i in self.imgDl:
+					audio.preload(i, r = True)
+				for i in self.audDl:
+					audio.preload(i, r = True)
+			threading.Thread(target = d, kwargs={'self':self}, daemon = True).start()
 
 	def removeSelectedAddition(self):
 		if self.sessionAdditionsListbox.curselection() == (): return

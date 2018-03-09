@@ -6,10 +6,11 @@ import pygame
 from bs4 import BeautifulSoup
 
 import requests
+import shutil
 import time
 import math
 import sys
-#import helpLibs.consts as consts
+import helpLibs.consts as consts
 
 volume = 0.8
 
@@ -25,10 +26,11 @@ def startAudio():
 def endAudio():
 	pygame.mixer.quit()
 
-def play(i):
-	file = "{}\\{}\\{}\\{}\\{}.mp3".format(consts.cwd(),consts.fname(),i[11],i[12],i[0].replace("?", "qChar"))
+def play(i, a = False):
+	file = "{}\\{}\\{}\\{}\\{}.mp3".format(consts.cwd(),consts.fname(),i[11],i[12],(i[0] if not a else i[1]).replace("?", "qChar"))
 	file = file.replace(" .mp3", ".mp3")
 	file = file.replace("..mp3", ".mp3")
+	file = file.replace('.mp3.mp3', '.mp3')
 	file = file.replace("/", "slashChar")
 	file = file.lower()
 	pygame.mixer.music.load(file)
@@ -38,59 +40,71 @@ def play(i):
 	while pygame.mixer.music.get_busy():
 		pass		
 
-def preload(i):
+def preload(i, r = False):
 	if i[14] == 'none':return
+	if r:
+		if 'img-' in i[1]:
+			ifdir ="{}\\{}\\{}\\{}\\{}\\".format(consts.cwd(),consts.fname(),i[11],i[12],consts.images())
+			ifile = "{}\\{}\\{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),i[11],i[12],consts.images(),i[1].split('/')[len(i[1].split('/')) - 1])
+			if not os.path.isdir(ifdir):
+				os.makedirs(ifdir)
+			if not os.path.isfile(ifile):
+				with open(ifile, 'wb') as f:
+					shutil.copyfileobj(getFile(img =  i[1].split('img-')[1]), f)
+			return
+		elif 'audio-' in i[1]:
+			ifdir ="{}\\{}\\{}\\{}\\".format(consts.cwd(),consts.fname(),i[11],i[12])
+			ifile = "{}\\{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),i[11],i[12],'audio-' + i[1].split('/')[len(i[1].split('/')) - 1])
+			if not os.path.isdir(ifdir):
+				os.makedirs(ifdir)
+			if not os.path.isfile(ifile):
+				with open(ifile, 'wb') as f:
+					f.write(getFile(audio = i[1].split('audio-')[1]))
+			return
+	elif not r:
+		if 'audio-' in i[1]: return
 	fdir ="{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),i[11],i[12])
 	file = "{}\\{}\\{}\\{}\\{}.mp3".format(consts.cwd(),consts.fname(),i[11],i[12],i[0].replace("?", "qChar"))
 	file = file.replace(" .mp3", ".mp3")
 	file = file.replace("..mp3", ".mp3")
 	file = file.replace("/", "slashChar")
 	file = file.lower()
+
 	if not os.path.isdir(fdir):
 		os.makedirs(fdir)
 	if not os.path.isfile(file):
 		try:
 			with open(file, 'wb') as f:
-				f.write(getVoice(i[0], i[14]))
+				f.write(getFile(word = i[0], lang = i[14]))
 		except:
 			tts = gTTS(text=i[0].replace("commaChar", ","), lang=i[14])
 			tts.save("{}".format(file))
 
-def getVoice(word, lang):
+def getFile(word = None, lang = None, img = False, audio = False):
 	session = requests.session()
 
-	# payload = { "login": "MyPySrs", 
- #                        "password": "MyPySrs"}#, 
- #                        #"csrfmiddlewaretoken": "<TOKEN>"}
-	# login_url = 'https://forvo.com/login/'
-	# result = session.get(login_url)
-	# #tree = html.fromstring(result.text)
-	# #authenticity_token = list(set(tree.xpath("//input[@name='csrfmiddlewaretoken']/@value")))[0]
-	# #payload['csrfmiddlewaretoken'] = authenticity_token
+	if word:
+		url = 'http://shtooka.net/search.php?str={}'.format(word)
+		r = session.get(url)
 
-	# session.post(login_url, data = payload, headers = dict(referer=login_url)) 
+		soup = BeautifulSoup(r.text, "html.parser")
 
-	# word = 'https://forvo.com/word/{}/#{}/'.format(word,lang)
-	# soup = BeautifulSoup(session.get(word).content, 'html.parser')
-	# dl = soup.find('p',{'class':'download'})
-	# print(dl)
+		a = soup.findAll("h1")
+		for i in a:
+			for j in i.findAll("img"):
+				if 'class="player' in str(i):
+					if lang in str(i).split("'")[3].split("'")[0]:
+						mp3url = str(i).split("'")[3].split("'")[0]
+						break
 
-	url = 'http://shtooka.net/search.php?str={}'.format(word)
-	r = session.get(url)
-
-	soup = BeautifulSoup(r.text, "html.parser")
-
-	a = soup.findAll("h1")
-	for i in a:
-		for j in i.findAll("img"):
-			print(j)
-			if 'class="player' in str(i):
-				if lang in str(i).split("'")[3].split("'")[0]:
-					mp3url = str(i).split("'")[3].split("'")[0]
-					break
-
-	r = session.get(mp3url)
-	return r.content
+		r = session.get(mp3url)
+		return r.content
+	elif img:
+		url = img
+		return session.get(url, stream = True).raw
+	elif audio:
+		url = audio
+		return session.get(url).content
 
 def dAllVoice(workdoc):
 	j = 1

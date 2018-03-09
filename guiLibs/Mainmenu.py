@@ -77,6 +77,7 @@ class Mainmenu(tk.Frame):
 	def reviewLesson(self):
 		self.controller.r = srs.setupNewLesson(deck = self.controller.deck)
 		for n,i in enumerate(self.controller.r):
+			if 'audio-' in i.split(',')[1]: continue
 			self.dlLabel['text'] = "Gathering files: {}/{}".format(n+1,len(self.controller.r))
 			self.controller.update()
 			audio.preload(i.split(','))
@@ -88,6 +89,7 @@ class Mainmenu(tk.Frame):
 	def learnLesson(self):
 		self.controller.r = srs.setupNewLesson(deck = self.controller.deck, review = False)
 		for n,i in enumerate(self.controller.r):
+			if 'audio-' in i.split(',')[1]: continue
 			self.dlLabel['text'] = "Gathering files: {}/{}".format(n+1,len(self.controller.r))
 			self.controller.update()
 			audio.preload(i.split(','))
@@ -169,6 +171,7 @@ class DeckEntry(tk.Frame):
 	def doReview(self):
 		self.master.controller.r = srs.setupNewLesson(deck = self.deck)
 		for n,i in enumerate(self.master.controller.r):
+			if 'audio-' in i.split(',')[1]: continue
 			self.master.dlLabel['text'] = "Gathering files: {}/{}".format(n+1,len(self.master.controller.r))
 			self.master.controller.update()
 			audio.preload(i.split(','))
@@ -181,6 +184,7 @@ class DeckEntry(tk.Frame):
 	def doLearn(self):
 		self.master.controller.r = srs.setupNewLesson(deck = self.deck, review = False)
 		for n,i in enumerate(self.master.controller.r):
+			if 'audio-' in i.split(',')[1]: continue
 			self.master.dlLabel['text'] = "Gathering files: {}/{}".format(n+1,len(self.master.controller.r))
 			self.master.controller.update()
 			audio.preload(i.split(','))

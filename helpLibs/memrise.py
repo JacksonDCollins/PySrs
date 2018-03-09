@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-COURSE_URL = 'https://www.memrise.com/course/1123055/russian-4/'
+COURSE_URL = 'https://www.memrise.com/course/78463/hacking-russian-2/2/'
 COURSES_URL = 'https://www.memrise.com{}languages/'.format('/courses/english/')
 CARD_COLUMNS = ("col_a", "col_b")
 
@@ -238,13 +238,18 @@ class Course(object):
         :level_url:   level URL
         """
         def get_text(value):
-            return '' if value is None else value.text
+            if 'image' in value['class']:
+                return  '{}-{}'.format('img', value.img['src'])
+            elif 'text' in value['class']:
+                return value.text
+            elif 'audio' in value['class']:
+                return '{}-{}'.format('audio', value.a['href'])
 
         soup = get_soup(level_url, self.session)
 
         for thing in soup.find_all(lambda tag: tag.has_attr("data-thing-id")):
             try:
-                cols = (get_text(thing.find("div", class_=col_name).find("div", class_="text")) for col_name in CARD_COLUMNS)
+                cols = (get_text(thing.find("div", class_=col_name).find("div", class_=("text",'image','audio'))) for col_name in CARD_COLUMNS)
             except:
                 continue
 
@@ -271,6 +276,7 @@ class Course(object):
             i.append("0")
             i.append("")
             i.append(i[2])
+            i[2] = 'none'
             i.append(i[3])
             #i[2] = download(i[0])
             i[3] = "no"
@@ -327,6 +333,6 @@ class Course(object):
                 lNum += 1
         self.mylines = mylines
 
-# t = CourseBrowser()
-# t.loadCourses()
-# print(t.getCourses()[1])
+#t = Course(COURSE_URL,{'Russian':'ru'})
+#t.dump_course()
+#t.fix()

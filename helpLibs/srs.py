@@ -6,7 +6,9 @@ import time
 import tkinter as tk
 import math
 import random
+from PIL import Image, ImageTk
 import helpLibs.consts as consts
+import threading
 
 def findTo(r = None, workdoc = consts.workdoc(), *args):
 	toReview = []
@@ -130,8 +132,9 @@ def afterAnswer(w, i, root):
 	w["bg"] = "white"
 	w["fg"] = "black"
 	if not root.lineEdited:
-		audio.preload(i)
-		audio.play(i)
+		print(root.line)
+		if not 'audio-' in root.line.split(',')[1].replace('commaChar', ','): audio.preload(root.line.split(',')); audio.play(root.line.split(','))
+		else: audio.play(root.line.split(','), a = True)
 	root.update()
 
 def waitForAnswer(gotAnswer, root, eWidget, line):
@@ -187,7 +190,26 @@ def doReviewLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 			root.line = i.split(",")
 
 			eWidget.delete(0, len(eWidget.get()))
-			tWidget.configure(text = root.line[1].replace("commaChar", ","))
+			if not 'img-' in root.line[1].replace('commaChar', ',') and not 'audio-' in root.line[1].replace('commaChar', ','):
+				tWidget.configure(text = root.line[1].replace("commaChar", ","), image = None)
+				tWidget.unbind('<Button-1>')
+			elif 'img-' in root.line[1].replace('commaChar', ','):
+				imgFile = "{}\\{}\\{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),root.line[11],root.line[12],consts.images(),root.line[1].replace('img-',''))
+				im = Image.open(imgFile)
+				#im = im.resize(size=(50,50))
+				img = ImageTk.PhotoImage(im)
+				tWidget.img = img
+				tWidget.configure(image = img, text = '')
+				tWidget.unbind('<Button-1>')
+			elif 'audio-' in root.line[1].replace('commaChar', ','):
+				imgFile = 'helpLibs/audio.jpg'
+				try: im = Image.open(imgFile)
+				except: im = Image.open('audio.jpg')
+				#im = im.resize(size=(50,50))
+				img = ImageTk.PhotoImage(im)
+				tWidget.img = img
+				tWidget.configure(image = img, text = '')
+				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
 			tagsWidget.configure(text = root.line[2].replace("commaChar", ",")) if not root.line[2] == "none" else tagsWidget.configure(text = "")
 			eWidget.focus()
 			gotAnswer = False
@@ -256,8 +278,26 @@ def doReviewLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 				for n, i in enumerate(redo):
 					cWidget.configure(text = "{}/{}".format(len(completed) + 1, len(sentences) + len(completed) + len(uncompleted) + len(redo)))
 					root.line = i.split(",")
-					tWidget.configure(text = root.line[1].replace("commaChar", ","))
-					tagsWidget.configure(text = root.line[2].replace("commaChar", ",")) if not root.line[2] == "none" else tagsWidget.configure(text = "")
+					if not 'img-' in root.line[1].replace('commaChar', ',') and not 'audio-' in root.line[1].replace('commaChar', ','):
+						tWidget.configure(text = root.line[1].replace("commaChar", ","), image = None)
+						tWidget.unbind('<Button-1>')
+					elif 'img-' in root.line[1].replace('commaChar', ','):
+						imgFile = "{}\\{}\\{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),root.line[11],root.line[12],consts.images(),root.line[1].replace('img-',''))
+						im = Image.open(imgFile)
+						#im = im.resize(size=(50,50))
+						img = ImageTk.PhotoImage(im)
+						tWidget.img = img
+						tWidget.configure(image = img, text = '')
+						tWidget.unbind('<Button-1>')
+					elif 'audio-' in root.line[1].replace('commaChar', ','):
+						imgFile = 'helpLibs/audio.jpg'
+						try: im = Image.open(imgFile)
+						except: im = Image.open('audio.jpg')
+						#im = im.resize(size=(50,50))
+						img = ImageTk.PhotoImage(im)
+						tWidget.img = img
+						tWidget.configure(image = img, text = '')
+						tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
 					gotAnswer = False
 
 					root.lineEdited = False
@@ -315,8 +355,26 @@ def doReviewLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 		for n, i in enumerate(uncompleted):
 			cWidget.configure(text = "{}/{}".format(len(completed) + 1, len(sentences) + len(completed) + len(uncompleted)))
 			root.line = i.split(",")
-			tWidget.configure(text = root.line[1].replace("commaChar", ","))
-			tagsWidget.configure(text = root.line[2].replace("commaChar", ",")) if not root.line[2] == "none" else tagsWidget.configure(text = "")
+			if not 'img-' in root.line[1].replace('commaChar', ',') and not 'audio-' in root.line[1].replace('commaChar', ','):
+				tWidget.configure(text = root.line[1].replace("commaChar", ","), image = None)
+				tWidget.unbind('<Button-1>')
+			elif 'img-' in root.line[1].replace('commaChar', ','):
+				imgFile = "{}\\{}\\{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),root.line[11],root.line[12],consts.images(),root.line[1].replace('img-',''))
+				im = Image.open(imgFile)
+				#im = im.resize(size=(50,50))
+				img = ImageTk.PhotoImage(im)
+				tWidget.img = img
+				tWidget.configure(image = img, text = '')
+				tWidget.unbind('<Button-1>')
+			elif 'audio-' in root.line[1].replace('commaChar', ','):
+				imgFile = 'helpLibs/audio.jpg'
+				try: im = Image.open(imgFile)
+				except: im = Image.open('audio.jpg')
+				#im = im.resize(size=(50,50))
+				img = ImageTk.PhotoImage(im)
+				tWidget.img = img
+				tWidget.configure(image = img, text = '')
+				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
 			gotAnswer = False
 
 			root.lineEdited = False
@@ -416,17 +474,38 @@ def doLearnLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 		random.shuffle(sentences)
 		for n,i in enumerate(sentences):
 			root.line = i.split(",")
+			print(root.line)
 			eWidget.delete(0, len(eWidget.get()))
-			tWidget.configure(text = root.line[1].replace("commaChar", ","))
+			if not 'img-' in root.line[1].replace('commaChar', ',') and not 'audio-' in root.line[1].replace('commaChar', ','):
+				tWidget.configure(text = root.line[1].replace("commaChar", ","), image = None)
+				tWidget.unbind('<Button-1>')
+			elif 'img-' in root.line[1].replace('commaChar', ','):
+				imgFile = "{}\\{}\\{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),root.line[11],root.line[12],consts.images(),root.line[1].replace('img-',''))
+				im = Image.open(imgFile)
+				#im = im.resize(size=(50,50))
+				img = ImageTk.PhotoImage(im)
+				tWidget.img = img
+				tWidget.configure(image = img, text = '')
+				tWidget.unbind('<Button-1>')
+			elif 'audio-' in root.line[1].replace('commaChar', ','):
+				imgFile = 'helpLibs/audio.jpg'
+				try: im = Image.open(imgFile)
+				except: im = Image.open('audio.jpg')
+				#im = im.resize(size=(50,50))
+				img = ImageTk.PhotoImage(im)
+				tWidget.img = img
+				tWidget.configure(image = img, text = '')
+				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
+
 			tagsWidget.configure(text = root.line[2].replace("commaChar", ",")) if not root.line[2] == "none" else tagsWidget.configure(text = "")
 
 			if root.line[3] == 'no':
-				cAnswerEntry =  tk.Label(root, text = root.line[0].lower().replace(".", ""), font = (lambda x: cAnswerEntry.cget('font'), 32), width = 50, wraplength = 1255)
+				cAnswerEntry =  tk.Label(root, text = root.line[0].replace("commaChar", ",").replace(".", ""), font = (lambda x: cAnswerEntry.cget('font'), 32), width = 50, wraplength = 1255)
 				cAnswerEntry.grid(row = 4, column = 0, columnspan = 2, rowspan = 1)
 				cWidget.set(0)
-				root.update()
-				audio.preload(root.line)
-				audio.play(root.line)
+				root.update()		
+				if not 'audio-' in root.line[1].replace('commaChar', ','): audio.preload(root.line); audio.play(root.line)
+				else: audio.play(root.line, a = True)
 				root.line[3] = 'step0'
 			else:
 				cWidget.set(int(root.line[3].split("step")[1]))
