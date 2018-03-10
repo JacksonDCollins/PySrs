@@ -10,6 +10,12 @@ from PIL import Image, ImageTk
 import helpLibs.consts as consts
 import threading
 
+try: audLight = Image.open('helpLibs/audLight.png')
+except: audLight = Image.open('audLight.png')
+
+try: audDark = Image.open('helpLibs/audDark.png')
+except: audDark = Image.open('audDark.png')
+
 def findTo(r = None, workdoc = consts.workdoc(), *args):
 	toReview = []
 	rList = []
@@ -195,20 +201,16 @@ def doReviewLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 			elif 'img-' in root.line[1].replace('commaChar', ','):
 				imgFile = "{}\\{}\\{}\\{}\\{}\\{}".format(consts.cwd(),consts.fname(),root.line[11],root.line[12],consts.images(),root.line[1].replace('img-',''))
 				im = Image.open(imgFile)
-				#im = im.resize(size=(50,50))
 				img = ImageTk.PhotoImage(im)
 				tWidget.img = img
 				tWidget.configure(image = img, text = '')
 				tWidget.unbind('<Button-1>')
 			elif 'audio-' in root.line[1].replace('commaChar', ','):
-				imgFile = 'helpLibs/audio.jpg'
-				try: im = Image.open(imgFile)
-				except: im = Image.open('audio.jpg')
-				#im = im.resize(size=(50,50))
-				img = ImageTk.PhotoImage(im)
+				img = ImageTk.PhotoImage(audLight)
 				tWidget.img = img
 				tWidget.configure(image = img, text = '')
-				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
+				def audPlay(): img = ImageTk.PhotoImage(audDark); tWidget.img = img; tWidget.configure(image = img, text = ''); audio.play(root.line, a = True); img = ImageTk.PhotoImage(audLight); tWidget.img = img;	tWidget.configure(image = img, text = '')
+				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = audPlay, daemon = True).start())
 			tagsWidget.configure(text = root.line[2].replace("commaChar", ",")) if not root.line[2] == "none" else tagsWidget.configure(text = "")
 			eWidget.focus()
 			gotAnswer = False
@@ -289,14 +291,11 @@ def doReviewLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 						tWidget.configure(image = img, text = '')
 						tWidget.unbind('<Button-1>')
 					elif 'audio-' in root.line[1].replace('commaChar', ','):
-						imgFile = 'helpLibs/audio.jpg'
-						try: im = Image.open(imgFile)
-						except: im = Image.open('audio.jpg')
-						#im = im.resize(size=(50,50))
-						img = ImageTk.PhotoImage(im)
+						img = ImageTk.PhotoImage(audLight)
 						tWidget.img = img
 						tWidget.configure(image = img, text = '')
-						tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
+						def audPlay(): img = ImageTk.PhotoImage(audDark); tWidget.img = img; tWidget.configure(image = img, text = ''); audio.play(root.line, a = True); img = ImageTk.PhotoImage(audLight); tWidget.img = img;	tWidget.configure(image = img, text = '')
+						tWidget.bind('<Button-1>', lambda x: threading.Thread(target = audPlay, daemon = True).start())
 					gotAnswer = False
 
 					root.lineEdited = False
@@ -366,14 +365,11 @@ def doReviewLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 				tWidget.configure(image = img, text = '')
 				tWidget.unbind('<Button-1>')
 			elif 'audio-' in root.line[1].replace('commaChar', ','):
-				imgFile = 'helpLibs/audio.jpg'
-				try: im = Image.open(imgFile)
-				except: im = Image.open('audio.jpg')
-				#im = im.resize(size=(50,50))
-				img = ImageTk.PhotoImage(im)
+				img = ImageTk.PhotoImage(audLight)
 				tWidget.img = img
 				tWidget.configure(image = img, text = '')
-				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
+				def audPlay(): img = ImageTk.PhotoImage(audDark); tWidget.img = img; tWidget.configure(image = img, text = ''); audio.play(root.line, a = True); img = ImageTk.PhotoImage(audLight); tWidget.img = img;	tWidget.configure(image = img, text = '')
+				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = audPlay, daemon = True).start())
 			gotAnswer = False
 
 			root.lineEdited = False
@@ -486,14 +482,11 @@ def doLearnLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 				tWidget.configure(image = img, text = '')
 				tWidget.unbind('<Button-1>')
 			elif 'audio-' in root.line[1].replace('commaChar', ','):
-				imgFile = 'helpLibs/audio.jpg'
-				try: im = Image.open(imgFile)
-				except: im = Image.open('audio.jpg')
-				#im = im.resize(size=(50,50))
-				img = ImageTk.PhotoImage(im)
+				img = ImageTk.PhotoImage(audLight)
 				tWidget.img = img
 				tWidget.configure(image = img, text = '')
-				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = lambda: audio.play(root.line, a = True), daemon = True).start())
+				def audPlay(): img = ImageTk.PhotoImage(audDark); tWidget.img = img; tWidget.configure(image = img, text = ''); audio.play(root.line, a = True); img = ImageTk.PhotoImage(audLight); tWidget.img = img;	tWidget.configure(image = img, text = '')
+				tWidget.bind('<Button-1>', lambda x: threading.Thread(target = audPlay, daemon = True).start())
 
 			tagsWidget.configure(text = root.line[2].replace("commaChar", ",")) if not root.line[2] == "none" else tagsWidget.configure(text = "")
 
@@ -503,7 +496,15 @@ def doLearnLesson(sentences, root, tWidget, eWidget, tagsWidget, cWidget):
 				cWidget.set(0)
 				root.update()		
 				if not 'audio-' in root.line[1].replace('commaChar', ','): audio.preload(root.line); audio.play(root.line)
-				else: audio.play(root.line, a = True)
+				else:
+					img = ImageTk.PhotoImage(audDark)
+					tWidget.img = img
+					tWidget.configure(image = img, text = '')
+					root.update()
+					audio.play(root.line, a = True)
+					img = ImageTk.PhotoImage(audLight)
+					tWidget.img = img
+					tWidget.configure(image = img, text = '')
 				root.line[3] = 'step0'
 			else:
 				cWidget.set(int(root.line[3].split("step")[1]))

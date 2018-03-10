@@ -18,7 +18,6 @@ class Analytics(tk.Frame):
 			self.historyFiles()
 			self.controller.Analynew = False
 		
-
 	def init_vals(self):
 		self.allHis = []
 		self.hfiles = []
