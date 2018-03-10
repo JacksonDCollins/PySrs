@@ -10,10 +10,10 @@ from PIL import Image, ImageTk
 import helpLibs.consts as consts
 import threading
 
-try: audLight = Image.open('helpLibs/audLight.png')
+try: audLight = Image.open('extras/audLight.png')
 except: audLight = Image.open('audLight.png')
 
-try: audDark = Image.open('helpLibs/audDark.png')
+try: audDark = Image.open('extras/audDark.png')
 except: audDark = Image.open('audDark.png')
 
 def findTo(r = None, workdoc = consts.workdoc(), *args):

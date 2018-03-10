@@ -57,7 +57,7 @@ class CourseBrowser(object):
 
         self.courses_url = COURSES_URL
         try: self.browser = webdriver.PhantomJS(executable_path = 'phantomjs.exe')
-        except: self.browser = webdriver.PhantomJS(executable_path = 'helpLibs/phantomjs.exe')
+        except: self.browser = webdriver.PhantomJS(executable_path = 'extras/phantomjs.exe')
         self.getLanguages()
 
     def selfExit(self):
